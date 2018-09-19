@@ -1,0 +1,74 @@
+<html>
+<head>
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css?family=Cutive+Mono');
+    body {
+        font-family: 'Cutive Mono', monospace;
+    }
+    h1 {
+        color: pink;
+        font-family: 'Cutive Mono', monospace;
+    }
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        font-family: 'Cutive Mono', monospace;
+    }
+    .button {
+        font-family: arial;
+        background-image: linear-gradient(pink, yellow);
+        border: 2px dotted black;
+        color: black;
+        font-size: 16px;
+        margin: 0 auto;
+        padding: 10px 16px;
+    }
+</style>
+<body id="body">
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+
+            var socket = io.connect();
+
+            socket.on('connect', function(clientInfo) {
+                    var person = prompt("Who wants to join our happy chat?", "your name goes here");
+                    if (person != null) {
+                       socket.emit('storeClientInfo', { customId: person });
+                    }
+            });
+
+            // Receive from any event
+            socket.on('chatmessage', function(data) {
+                    console.log(data.text);
+                    var msg = document.createElement('LI');
+    	    var header = document.getElementById('header');
+    	    var body = document.getElementById('body');
+    	    var threshold = Math.pow(data.bgroundColor/8.5, 2);
+    	    console.log(threshold)
+                    msg.innerHTML = data.username + ": " + data.text;
+                    msg.style.backgroundColor = "rgb(" + threshold + "," + threshold + "," + threshold + ")";
+                    msg.style.color = "black";
+    	    var inv_color = 255 - threshold;
+    	    var low_color = inv_color/255
+    	    header.style.opacity = low_color
+    	    // header.style.color = "rgb(" + inv_color + "," + "192" + "," + "203" + ")";
+    	    //body.style.backgroundColor = "rgb(" + "20" + "," + data.bgroundColor + "," + data.bgroundColor + ")";
+                    document.getElementById('messages').appendChild(msg);
+            });
+            var sendmessage = function(message){
+                    console.log("chatmessage: " + message);
+                    socket.emit('chatmessage', message);
+                    document.getElementById('message').value = "";
+            };
+    </script>
+    <ul id="messages">
+        <h1 id="header">
+            EVERYTHING IS AWESOME.
+        </h1>
+    </ul>
+    <input type="text" id="message" name="message">
+    <input class="button" type="submit" value="submit" onclick="sendmessage(document.getElementById('message').value);">
+</body>
+</html>
